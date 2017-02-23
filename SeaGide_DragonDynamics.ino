@@ -23,6 +23,8 @@ Servo engineMotor;
 
 void setup() {
   // put your setup code here, to run once:
+  
+  /*
   Serial.begin(9600);
   Serial.println(digitalRead(LIMIT_SWITCH));
   Serial.println("Retracting");
@@ -30,7 +32,10 @@ void setup() {
   Serial.println("Done");
   Serial.println("extending");
   setMotorPosition("extended");
-  Serial.println(")
+  Serial.println("done");
+  */
+
+  setMotorPosition("retracted");
 }
 
 void loop() {
@@ -41,23 +46,20 @@ void loop() {
 void setMotorPosition(String destination) {
   //
   if (destination == "extended") {
-      //
-unsigned long currentMillis = millis();
-long previousMillis = currentMillis;
+      //riseing
 engineMotor.attach(ENGINE_PIN);
 engineMotor.write(servoExtendCommand);
-while (currentMillis - previousMillis < riseDriveTime) {
-  currentMillis = millis();
-  //wait
-}
+
+delay(riseDriveTime);
+
 engineMotor.detach();
-      
+      //
   } else {
     if (destination == "retracted") {
       //
       engineMotor.attach(ENGINE_PIN);
       engineMotor.write(servoRetractCommand);
-      while(digitalRead(LIMIT_SWITCH) == LOW) {
+      while(digitalRead(LIMIT_SWITCH) == HIGH) {
         //
       Serial.println("Waiting");
       }
