@@ -7,6 +7,7 @@
 static byte servoRetractCommand = 0; //retract
 static byte servoExtendCommand = 180; //extend
 int riseDriveTime = 15500; //DO NOT GO OVER 15500!! THIS WILL CAUSE THE SERVO TO PUSH THE PLUNGER "THROUGH" THE BOYANCY ENGINE
+int requiredDepthInInches = 6;
 
 //Pins
 static byte ENGINE_PIN = 10; //Continuious rotation servo
@@ -15,6 +16,7 @@ static byte R_LED = 9;
 static byte G_LED = 6;
 static byte B_LED = 5;
 static byte LED_BASE = 7;
+static byte PRESSURE_SENSOR = 2;
 //
 
 //Object Declarations
@@ -23,19 +25,16 @@ Servo engineMotor;
 
 void setup() {
   // put your setup code here, to run once:
+  pinMode(LIMIT_SWITCH, INPUT_PULLUP);
   
-  /*
   Serial.begin(9600);
-  Serial.println(digitalRead(LIMIT_SWITCH));
-  Serial.println("Retracting");
-  setMotorPosition("retracted");
-  Serial.println("Done");
-  Serial.println("extending");
-  setMotorPosition("extended");
-  Serial.println("done");
-  */
 
   setMotorPosition("retracted");
+  while(getDepth < requiredDepthInInches) {
+    //
+    Serial.println("depth: " + getDepth());
+  }
+  setMotorPosition("extended");
 }
 
 void loop() {
@@ -59,12 +58,20 @@ engineMotor.detach();
       //
       engineMotor.attach(ENGINE_PIN);
       engineMotor.write(servoRetractCommand);
-      while(digitalRead(LIMIT_SWITCH) == HIGH) {
+      while(digitalRead(11) == HIGH) {
         //
-      Serial.println("Waiting");
+        Serial.println("Waiting");
+        engineMotor.write(servoRetractCommand);
       }
       engineMotor.detach();
     }
   }
 }
 
+
+
+int getDepth() {
+  //
+  int raw = analogRead(PRESSURE_SENSOR);
+  return (raw - 240) / 0.58602;
+}
