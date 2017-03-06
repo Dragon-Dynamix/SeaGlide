@@ -1,14 +1,15 @@
 //Library Calls
 #include <Servo.h>
 
-//
+//test
 
 
 static byte servoRetractCommand = 0; //retract
 static byte servoExtendCommand = 180; //extend
 int riseDriveTime = 15500; //DO NOT GO OVER 15500!! THIS WILL CAUSE THE SERVO TO PUSH THE PLUNGER "THROUGH" THE BOYANCY ENGINE
-int lowerDepth = 6; //in inches (72 = 6 feet)
+
 int upperDepth = 6; //in inches (72 = 6 feet)
+int lowerDepth = 12; //in inches (72 = 6 feet)
 
 //Pins
 static byte ENGINE_PIN = 10; //Continuious rotation servo
@@ -44,7 +45,7 @@ void loop() {
 
   setMotorPosition("extended");
 
-  while(getDepth() < upperDepth) {
+  while(getDepth() > upperDepth) {
     //
     Serial.println("depth: " + getDepth());
   }
