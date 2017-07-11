@@ -6,7 +6,6 @@ boolean pauseToggle = false;
 
 boolean homeingRequired = false;
 
-
 static byte servoRetractCommand = 0; //retract
 static byte servoExtendCommand = 180; //extend
 int riseDriveTime = 7750; //DO NOT GO OVER 15500!! THIS WILL CAUSE THE SERVO TO PUSH THE PLUNGER "THROUGH" THE BOYANCY ENGINE
@@ -26,7 +25,6 @@ int PRESSURE_SENSOR = A2;
 static byte RECV_PIN = 2;            // IR reciever signal pin
 static byte IR_GND = 3;              // IR middle pin, ground
 static byte IR_PWR = 4;              // IR power pin
-//
 
 // IR definitions
 //IRrecv irrecv(RECV_PIN);
@@ -44,7 +42,6 @@ decode_results results;
 
 //Object Declarations
 Servo engineMotor;
-//
 
 void setup() {
   // put your setup code here, to run once:
@@ -94,8 +91,6 @@ void loop() {
       }
     }
 
-
-    
     Serial.print("depth: ");
     Serial.print(getDepth());
     Serial.print("    raw: ");
@@ -117,8 +112,7 @@ void loop() {
         Serial.print("Centering...");
         setMotorPosition("retracted");
         setMotorPosition("center");
-        homeingRequired = true;
-        
+        homeingRequired = true;  
       }
 
       if (checkBurb()) {
@@ -184,22 +178,11 @@ engineMotor.detach();
     }
 }
 
-
-
 float getDepth() {
   //
   int raw = analogRead(PRESSURE_SENSOR);
   return (float) (1.59625 * raw) - 380.975;
 }
-
-
-
-
-
-
-
-
-
 
 void IRsetup(){
   irrecv.enableIRIn();
@@ -208,10 +191,6 @@ void IRsetup(){
   digitalWrite(IR_GND, 0);
   digitalWrite(IR_PWR, 1);
 }
-
-
-
-
 
 boolean checkPause(){
   if (irrecv.decode(&results)) {
@@ -261,11 +240,8 @@ boolean paused() {
   return pauseToggle;
 }
 
-
-
 void ledRGB_Write(byte R, byte G, byte B){      // This method takes care of the details of setting a color and intensity of the RGB LED
   analogWrite(R_LED, 255-R);                  // These are backwards because you write low values to turn these LEDs on
   analogWrite(G_LED, 255-G);                // This method reverses the counterintuitive nature of the LEDs
   analogWrite(B_LED, 255-B);                 // If using common anode rather than common anode LEDs remove the "255-"es
 }  
-
