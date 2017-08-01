@@ -6,12 +6,15 @@ boolean pauseToggle = false;
 
 boolean homeingRequired = false;
 
+String command = "";
+
+
 static byte servoRetractCommand = 0; //retract
 static byte servoExtendCommand = 180; //extend
 int riseDriveTime = 7750; //DO NOT GO OVER 15500!! THIS WILL CAUSE THE SERVO TO PUSH THE PLUNGER "THROUGH" THE BOYANCY ENGINE
 
-float upperDepth = 0; //in inches (72 = 6 feet)
-float lowerDepth = 12; //in inches (72 = 6 feet)
+float upperDepth = 12; //in inches (72 = 6 feet)
+float lowerDepth = 84; //in inches (72 = 6 feet)
 
 //Pins
 static byte ENGINE_PIN = 10; //Continuious rotation servo
@@ -25,6 +28,7 @@ int PRESSURE_SENSOR = A2;
 static byte RECV_PIN = 2;            // IR reciever signal pin
 static byte IR_GND = 3;              // IR middle pin, ground
 static byte IR_PWR = 4;              // IR power pin
+//
 
 // IR definitions
 //IRrecv irrecv(RECV_PIN);
@@ -42,6 +46,7 @@ decode_results results;
 
 //Object Declarations
 Servo engineMotor;
+//
 
 void setup() {
   // put your setup code here, to run once:
@@ -54,6 +59,22 @@ void setup() {
   digitalWrite(LED_BASE, HIGH);
   ledRGB_Write(0,0,0);
   Serial.begin(9600);
+
+
+  
+
+  while(!paused()) {
+    
+  }
+  pauseToggle = false;
+  setMotorPosition("retracted");
+  setMotorPosition("extended");
+  setMotorPosition("retracted");
+  setMotorPosition("extended");
+  setMotorPosition("retracted");
+  setMotorPosition("extended");
+  setMotorPosition("retracted");
+  setMotorPosition("extended");
 }
 
 void loop() {
@@ -63,16 +84,18 @@ void loop() {
 
   while((getDepth() < lowerDepth) || paused()) {
     //
+    
     if (paused()) {
       Serial.print("==PAUSED==");
-      if (checkCenter()) {
+      command = getButton();
+      if (command == "center") {
         Serial.print("Centering...");
         setMotorPosition("retracted");
         setMotorPosition("center");
         homeingRequired = true;
         
       }
-      if (checkBurb()) {
+      if (command == "burp") {
         ledRGB_Write(255,255,255);
         setMotorPosition("retracted");
         setMotorPosition("extended");
@@ -91,6 +114,8 @@ void loop() {
       }
     }
 
+
+    
     Serial.print("depth: ");
     Serial.print(getDepth());
     Serial.print("    raw: ");
@@ -108,14 +133,16 @@ void loop() {
     //
     if (paused()) {
       Serial.print("==PAUSED==");
-      if (checkCenter()) {
+      command = getButton();
+      if (command == "center") {
         Serial.print("Centering...");
         setMotorPosition("retracted");
         setMotorPosition("center");
-        homeingRequired = true;  
+        homeingRequired = true;
+        
       }
 
-      if (checkBurb()) {
+      if (command == "burp") {
         ledRGB_Write(255,255,255);
         setMotorPosition("retracted");
         setMotorPosition("extended");
@@ -178,11 +205,22 @@ engineMotor.detach();
     }
 }
 
+
+
 float getDepth() {
   //
   int raw = analogRead(PRESSURE_SENSOR);
   return (float) (1.59625 * raw) - 380.975;
 }
+
+
+
+
+
+
+
+
+
 
 void IRsetup(){
   irrecv.enableIRIn();
@@ -191,6 +229,10 @@ void IRsetup(){
   digitalWrite(IR_GND, 0);
   digitalWrite(IR_PWR, 1);
 }
+
+
+
+
 
 boolean checkPause(){
   if (irrecv.decode(&results)) {
@@ -206,32 +248,26 @@ boolean checkPause(){
     }
   }
 
-boolean checkCenter(){
+boolean getButton(){
   if (irrecv.decode(&results)) {
     if (results.value == TWO) {
       Serial.println("TWO");
       irrecv.resume();
-      return true;
+      return "center";
     }
     else{
+      if (results.value == ONE) {
+        irrecv.resume();
+        return "brup";
+      } else {
       irrecv.resume();
       return false;
+      }
     }
   }
 }
 
-boolean checkBurb() {
-  if (irrecv.decode(&results)) {
-    if (results.value == ONE) {
-      irrecv.resume();
-      return true;
-    }
-    else{
-      irrecv.resume();
-      return false;
-    }
-  }
-}
+
 
 boolean paused() {
   if (checkPause()) {
@@ -240,8 +276,11 @@ boolean paused() {
   return pauseToggle;
 }
 
+
+
 void ledRGB_Write(byte R, byte G, byte B){      // This method takes care of the details of setting a color and intensity of the RGB LED
   analogWrite(R_LED, 255-R);                  // These are backwards because you write low values to turn these LEDs on
   analogWrite(G_LED, 255-G);                // This method reverses the counterintuitive nature of the LEDs
   analogWrite(B_LED, 255-B);                 // If using common anode rather than common anode LEDs remove the "255-"es
 }  
+
